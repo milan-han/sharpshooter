@@ -1,4 +1,5 @@
 import { Game } from './core/Game.js';
+import { Projectile } from './entities/Projectile.js';
 
 let socket;
 let game;
@@ -40,7 +41,9 @@ function setupNetworking() {
 
     socket.on('projectileFired', (proj) => {
         if (!game) return;
-        game.gameState.projectiles.push(proj);
+        // Create a proper Projectile instance from the received data
+        const projectile = new Projectile(proj.x, proj.y, proj.heading, proj.shooterId);
+        game.gameState.projectiles.push(projectile);
     });
 }
 
