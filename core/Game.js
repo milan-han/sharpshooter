@@ -4,13 +4,13 @@ import { InputHandler } from '../input/InputHandler.js';
 import { lerp, normalizeAngle } from '../utils/math.js';
 
 export class Game {
-    constructor(canvas) {
+    constructor(canvas, onAction = null) {
         this.gameState = new GameState();
         this.renderer = new Renderer(canvas);
-        this.inputHandler = new InputHandler(this.gameState);
+        this.inputHandler = new InputHandler(this.gameState, onAction);
         
-        // Make gameState globally accessible (for now - in multiplayer this would change)
-        window.gameState = this.gameState;
+        // Make gameState globally accessible (works in browser and Node)
+        globalThis.gameState = this.gameState;
         
         // Bind resize handler
         window.onresize = () => this.renderer.resize();

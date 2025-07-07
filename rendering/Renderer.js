@@ -127,12 +127,19 @@ export class Renderer {
         this.drawGrid(gameState.grid);
         gameState.projectiles.forEach(p => this.drawProjectile(p));
 
-        // Draw NPC cubes first so the human player's square appears on top
+        // Draw NPC cubes
         if (gameState.npcPlayers) {
             gameState.npcPlayers.forEach(npc => this.drawPlayer(npc, gameState.grid, true));
         }
 
-        // Draw human player last
+        // Draw other connected players
+        if (gameState.otherPlayers) {
+            for (const pl of gameState.otherPlayers.values()) {
+                this.drawPlayer(pl, gameState.grid);
+            }
+        }
+
+        // Draw human player last so it appears on top
         this.drawPlayer(gameState.player, gameState.grid);
 
         this.ctx.restore();
