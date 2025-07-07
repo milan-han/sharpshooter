@@ -24,7 +24,7 @@ class NPC extends Player {
         }
         this._decisionCooldown = this._decisionInterval;
 
-        const player = window.gameState.player;
+        const player = globalThis.gameState.player;
         if (!player) return;
 
         // Determine which cardinal direction more closely points toward the human player
@@ -80,17 +80,8 @@ export class GameState {
         this.player.shieldCooldown = 0;
         this.player.hitBlinkTimer = 0;
 
-        // Spawn a handful of NPC opponents at random valid tiles away from the centre
         this.npcPlayers = [];
-        const tileKeys = Array.from(this.grid.tiles.keys());
-        const desiredNPCCount = 3;
-        while (this.npcPlayers.length < desiredNPCCount && tileKeys.length) {
-            const index = Math.floor(Math.random() * tileKeys.length);
-            const [gx, gy] = tileKeys.splice(index, 1)[0].split(',').map(Number);
-            if (gx === 0 && gy === 0) continue; // avoid spawning on human player
-            const npc = new NPC(gx, gy);
-            this.npcPlayers.push(npc);
-        }
+        this.otherPlayers = new Map();
     }
 
     init() {
@@ -99,8 +90,35 @@ export class GameState {
         this.camera.rotation = -this.player.heading - Math.PI / 2;
     }
 
+    addRemotePlayer(id) {
+        const pl = new Player(0, 0);
+        pl.playerId = id;
+        pl.shieldCooldown = 0;
+        pl.hitBlinkTimer = 0;
+        this.otherPlayers.set(id, pl);
+        return pl;
+    }
+
+    removeRemotePlayer(id) {
+        this.otherPlayers.delete(id);
+    }
+
+    updateRemotePlayer(id, state) {
+        const pl = this.otherPlayers.get(id);
+        if (!pl) return;
+        pl.gridX = state.gridX;
+        pl.gridY = state.gridY;
+        pl.heading = state.heading;
+        pl.heldOrb = state.heldOrb;
+        pl.updateWorldPos();
+    }
+
     update() {
-        const allPlayers = [this.player, ...this.npcPlayers];
+        const allPlayers = [
+            this.player,
+            ...this.npcPlayers,
+            ...this.otherPlayers.values()
+        ];
 
         // Update timers (shield cooldowns / blink) for everyone
         allPlayers.forEach(p => {
@@ -163,4 +181,27 @@ export class GameState {
 
         this.projectiles = stillAlive;
     }
-} 
+
+    getState() {
+        const players = [
+            this.player,
+            ...this.npcPlayers,
+            ...this.otherPlayers.values()
+        ].map(p => ({
+            playerId: p.playerId,
+            gridX: p.gridX,
+            gridY: p.gridY,
+            heading: p.heading,
+            heldOrb: p.heldOrb
+        }));
+
+        const projectiles = this.projectiles.map(pr => ({
+            x: pr.x,
+            y: pr.y,
+            heading: pr.heading,
+            shooterId: pr.shooterId
+        }));
+
+        return { players, projectiles };
+    }
+}

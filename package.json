@@ -10,7 +10,8 @@
     "dev": "npm run watch:css & npm start"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
     "tailwindcss": "^3.3.0",

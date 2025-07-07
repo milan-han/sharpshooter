@@ -13,7 +13,7 @@ export class Player {
     }
 
     updateWorldPos() {
-        const grid = window.gameState.grid;
+        const grid = globalThis.gameState.grid;
         if (grid) {
             this.worldX = this.gridX * grid.tileSize;
             this.worldY = this.gridY * grid.tileSize;
@@ -25,7 +25,7 @@ export class Player {
         const dy = Math.round(Math.sin(this.heading));
         const nextGridX = this.gridX + dx * direction;
         const nextGridY = this.gridY + dy * direction;
-        if (window.gameState.grid.hasTileAt(nextGridX, nextGridY)) {
+        if (globalThis.gameState.grid.hasTileAt(nextGridX, nextGridY)) {
             this.gridX = nextGridX;
             this.gridY = nextGridY;
             this.updateWorldPos();
@@ -38,13 +38,15 @@ export class Player {
 
     interact() {
         if (this.heldOrb) {
-            window.gameState.projectiles.push(
-                new Projectile(this.worldX, this.worldY, this.heading, this.playerId)
-            );
+            const proj = new Projectile(this.worldX, this.worldY, this.heading, this.playerId);
+            globalThis.gameState.projectiles.push(proj);
+            if (typeof globalThis.sendProjectile === 'function') {
+                globalThis.sendProjectile(proj);
+            }
             this.heldOrb = false;
         } else {
             const key = `${this.gridX},${this.gridY}`;
-            const tile = window.gameState.grid.tiles.get(key);
+            const tile = globalThis.gameState.grid.tiles.get(key);
             if (tile && tile.hasOrb) {
                 this.heldOrb = true;
                 tile.hasOrb = false;
