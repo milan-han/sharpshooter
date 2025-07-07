@@ -4,7 +4,7 @@ import { collidesWithShield } from '../utils/collision.js';
 import { distanceSquared } from '../utils/math.js';
 
 // Lightweight AI-controlled cube that inherits all movement and shooting behaviour from Player
-class NPC extends Player {
+class _NPC extends Player {
     constructor(gridX, gridY) {
         super(gridX, gridY);
         // Give each NPC a unique ID for projectile tracking

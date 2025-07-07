@@ -16,14 +16,14 @@ function setupNetworking() {
         // create existing players
         data.players.forEach(([id, state]) => {
             if (id === playerId) return;
-            const pl = game.gameState.addRemotePlayer(id);
+            const _pl = game.gameState.addRemotePlayer(id);
             game.gameState.updateRemotePlayer(id, state);
         });
     });
 
     socket.on('playerJoined', ({ id, state }) => {
         if (!game) return;
-        const pl = game.gameState.addRemotePlayer(id);
+        const _pl = game.gameState.addRemotePlayer(id);
         game.gameState.updateRemotePlayer(id, state);
     });
 

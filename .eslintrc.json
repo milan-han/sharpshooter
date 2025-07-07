@@ -9,5 +9,10 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "rules": {}
+  "globals": {
+    "io": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }]
+  }
 } 
