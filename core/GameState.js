@@ -81,6 +81,7 @@ export class GameState {
         // Attach combat state to human player
         this.player.shieldCooldown = 0;
         this.player.hitBlinkTimer = 0;
+        this.player.killStreak = 0;
 
         this.npcPlayers = [];
         this.otherPlayers = new Map();
@@ -97,6 +98,7 @@ export class GameState {
         pl.playerId = id;
         pl.shieldCooldown = 0;
         pl.hitBlinkTimer = 0;
+        pl.killStreak = 0;
         this.otherPlayers.set(id, pl);
         return pl;
     }
@@ -155,6 +157,14 @@ export class GameState {
                 if (distSq <= cubeRadius * cubeRadius) {
                     pl.hitBlinkTimer = 30; // blink for half a second
                     remove = true;
+                    const shooter = allPlayers.find(p => p.playerId === proj.shooterId);
+                    if (shooter) {
+                        shooter.killStreak = (shooter.killStreak || 0) + 1;
+                    }
+                    pl.killStreak = 0;
+                    if (typeof pl.respawn === 'function') {
+                        pl.respawn();
+                    }
                     break;
                 }
             }

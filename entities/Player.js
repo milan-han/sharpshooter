@@ -8,6 +8,7 @@ export class Player {
         this.worldY = 0;
         this.heading = -Math.PI / 2;
         this.heldOrb = false;
+        this.killStreak = 0;
         // Wait for next tick to update position to ensure gameState is available
         setTimeout(() => this.updateWorldPos(), 0);
     }
@@ -34,6 +35,15 @@ export class Player {
 
     rotate(direction) {
         this.heading += (Math.PI / 2) * direction;
+    }
+
+    respawn() {
+        const grid = globalThis.gameState.grid;
+        if (!grid || typeof grid.getRandomSpawn !== 'function') return;
+        const { gx, gy } = grid.getRandomSpawn();
+        this.gridX = gx;
+        this.gridY = gy;
+        this.updateWorldPos();
     }
 
     interact() {
