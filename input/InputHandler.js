@@ -17,26 +17,21 @@ export class InputHandler {
         switch (key) {
             case 'arrowup':
             case 'w':
-                this.gameState.player.move(1);
                 action = { type: 'move', dir: 1 };
                 break;
             case 'arrowdown':
             case 's':
-                this.gameState.player.move(-1);
                 action = { type: 'move', dir: -1 };
                 break;
             case 'arrowleft':
             case 'a':
-                this.gameState.player.rotate(-1);
                 action = { type: 'rotate', dir: -1 };
                 break;
             case 'arrowright':
             case 'd':
-                this.gameState.player.rotate(1);
                 action = { type: 'rotate', dir: 1 };
                 break;
             case ' ':
-                this.gameState.player.interact();
                 action = { type: 'interact' };
                 break;
         }
