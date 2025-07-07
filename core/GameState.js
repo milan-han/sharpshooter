@@ -1,5 +1,7 @@
 import { Grid } from '../entities/Grid.js';
 import { Player } from '../entities/Player.js';
+import { collidesWithShield } from '../utils/collision.js';
+import { distanceSquared } from '../utils/math.js';
 
 // Lightweight AI-controlled cube that inherits all movement and shooting behaviour from Player
 class NPC extends Player {
@@ -142,30 +144,11 @@ export class GameState {
                 // Skip collision if this projectile was fired by this player
                 if (proj.shooterId === pl.playerId) continue;
 
-                const dx = proj.x - pl.worldX;
-                const dy = proj.y - pl.worldY;
-                const distSq = dx * dx + dy * dy;
-
-                const shieldRadius = 140;
-                const shieldArc = Math.PI * (100 / 180); // 100° arc
                 const cubeRadius = this.grid.getInnerSize() / 2;
+                const distSq = distanceSquared(proj.x, proj.y, pl.worldX, pl.worldY);
 
-                // Shield block and bounce
-                if (pl.shieldCooldown === 0 && distSq <= shieldRadius * shieldRadius) {
-                    const angleToProj = Math.atan2(dy, dx);
-                    let diff = ((angleToProj - pl.heading + Math.PI * 3) % (Math.PI * 2)) - Math.PI; // [-PI, PI]
-                    if (Math.abs(diff) <= shieldArc / 2) {
-                        // Bounce: reverse direction and slow slightly
-                        proj.heading = angleToProj + Math.PI;
-                        proj.speed *= 0.9;
-                        // Reposition just outside shield to avoid immediate re-trigger
-                        proj.x = pl.worldX + Math.cos(angleToProj) * (shieldRadius + proj.radius + 1);
-                        proj.y = pl.worldY + Math.sin(angleToProj) * (shieldRadius + proj.radius + 1);
-
-                        pl.shieldCooldown = 24; // approx 0.4s at 60fps
-                        // Do not remove projectile; continue physics
-                        break; // No need to check cube hit this tick
-                    }
+                if (collidesWithShield(proj, pl)) {
+                    break; // projectile reflected by shield
                 }
 
                 // Direct cube hit (square approximated as circle)
