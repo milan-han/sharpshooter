@@ -116,6 +116,46 @@ export class Renderer {
         this.ctx.restore();
     }
 
+    drawUI(gameState) {
+        const killStreak = gameState.player.killStreak || 0;
+        
+        // Save context for UI drawing (no transforms)
+        this.ctx.save();
+        
+        // Top right position
+        const padding = 24;
+        const boxWidth = 160;
+        const boxHeight = 60;
+        const x = this.canvas.width - boxWidth - padding;
+        const y = padding;
+        
+        // Background box with grid-like aesthetic
+        this.ctx.fillStyle = 'rgba(12, 10, 9, 0.9)'; // Dark background matching grid
+        this.ctx.strokeStyle = '#27272a'; // Grid line color
+        this.ctx.lineWidth = 2;
+        this.ctx.fillRect(x, y, boxWidth, boxHeight);
+        this.ctx.strokeRect(x, y, boxWidth, boxHeight);
+        
+        // Inner border detail
+        this.ctx.strokeStyle = '#3f3f46';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(x + 4, y + 4, boxWidth - 8, boxHeight - 8);
+        
+        // Kill streak text
+        this.ctx.fillStyle = '#a1a1aa'; // Muted gray
+        this.ctx.font = '12px monospace';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText('KILL STREAK', x + 12, y + 20);
+        
+        // Kill streak number
+        this.ctx.fillStyle = killStreak > 0 ? '#ef4444' : '#71717a'; // Red if active, gray if zero
+        this.ctx.font = 'bold 24px monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(killStreak.toString(), x + boxWidth / 2, y + 45);
+        
+        this.ctx.restore();
+    }
+
     render(gameState) {
         this.clear();
         
@@ -143,5 +183,8 @@ export class Renderer {
         this.drawPlayer(gameState.player, gameState.grid);
 
         this.ctx.restore();
+        
+        // Draw UI elements (after restoring world transforms)
+        this.drawUI(gameState);
     }
 } 
