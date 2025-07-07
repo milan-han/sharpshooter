@@ -1,0 +1,20 @@
+{
+  "name": "grid-runner",
+  "version": "1.0.0",
+  "description": "Grid Runner game",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "build:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css --minify",
+    "watch:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css --watch",
+    "dev": "npm run watch:css & npm start"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21"
+  }
+} 
