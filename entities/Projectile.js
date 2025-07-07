@@ -1,3 +1,5 @@
+import { normalizeAngle } from '../utils/math.js';
+
 export class Projectile {
     constructor(x, y, heading, shooterId = null) {
         this.x = x;
@@ -9,6 +11,7 @@ export class Projectile {
         this.decayFactor = 0.97;
         this.life = 200;
         this.radius = 5;
+        this.collisionRadius = this.radius;
         
         // Color based on shooter type
         if (shooterId === 'player') {
@@ -27,4 +30,9 @@ export class Projectile {
         this.life--;
         return this.life <= 0; // Return true if projectile should be removed
     }
-} 
+
+    reflect(normalAngle) {
+        this.heading = normalizeAngle(normalAngle);
+        this.speed *= 0.9;
+    }
+}
