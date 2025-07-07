@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { GameRoom } from './core/GameRoom.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,27 +15,31 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(__dirname));
 
-const players = new Map();
+const rooms = [];
+const ROOM_CAP = parseInt(process.env.ROOM_CAP || '20', 10);
+
+function getAvailableRoom() {
+  let room = rooms.find(r => r.state.players.size < ROOM_CAP);
+  if (!room) {
+    const id = `room${rooms.length}`;
+    room = new GameRoom({ io, roomId: id });
+    room.start();
+    rooms.push(room);
+  }
+  return room;
+}
 
 io.on('connection', (socket) => {
-    const state = { gridX: 0, gridY: 0, heading: -Math.PI/2, heldOrb: false };
-    players.set(socket.id, state);
-    socket.emit('init', { id: socket.id, players: Array.from(players.entries()) });
-    socket.broadcast.emit('playerJoined', { id: socket.id, state });
+  const room = getAvailableRoom();
+  room.addSocket(socket);
 
-    socket.on('playerUpdate', (data) => {
-        players.set(socket.id, data);
-        socket.broadcast.emit('playerUpdate', { id: socket.id, state: data });
-    });
+  socket.on('input', (payload) => {
+    room.handleInput(socket.id, payload);
+  });
 
-    socket.on('projectileFired', (proj) => {
-        socket.broadcast.emit('projectileFired', proj);
-    });
-
-    socket.on('disconnect', () => {
-        players.delete(socket.id);
-        socket.broadcast.emit('playerDisconnected', socket.id);
-    });
+  socket.on('disconnect', () => {
+    room.removeSocket(socket);
+  });
 });
 
 httpServer.listen(PORT, () => {

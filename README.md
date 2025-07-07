@@ -128,6 +128,16 @@ Game.render() → Camera transforms → Draw world → Draw UI
 4. **Draw Entities**: Render players and projectiles
 5. **Screen Space**: Draw UI elements (held balls, stats)
 
+## Authoritative State & Rooms
+
+All combat, scoring and projectile logic now runs on the server. Clients simply
+send input actions and render snapshots received via `state:update` events. Each
+connection joins a `GameRoom` which maintains its own `ServerGameState`.
+
+The maximum number of players per room is controlled by the `ROOM_CAP`
+environment variable (default `20`). On platforms like Render.com you can scale
+by running multiple instances with appropriate `ROOM_CAP` values.
+
 ## Development
 
 ### Adding New Features

@@ -32,7 +32,6 @@ export class Game {
     }
 
     animate = () => {
-        this.gameState.update();
         this.updateCamera();
         this.renderer.render(this.gameState);
         requestAnimationFrame(this.animate);
